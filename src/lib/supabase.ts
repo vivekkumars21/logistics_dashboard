@@ -1,15 +1,19 @@
-// ── Supabase Client Placeholder ────────────────────────────────────
-// When you're ready to connect, install @supabase/supabase-js and
-// replace this file with real credentials.
-//
-//   npm install @supabase/supabase-js
-//
-// import { createClient } from "@supabase/supabase-js";
-//
-// const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-// const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-//
-// export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
-// For now we export nothing – all data comes from mock-data.ts
-export {};
+let _supabase: SupabaseClient | null = null;
+
+export function getSupabase(): SupabaseClient {
+  if (!_supabase) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!url || !key) {
+      throw new Error(
+        "Missing Supabase credentials. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local"
+      );
+    }
+
+    _supabase = createClient(url, key);
+  }
+  return _supabase;
+}

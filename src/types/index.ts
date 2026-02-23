@@ -1,66 +1,57 @@
-// ── Supply Chain Domain Types ──────────────────────────────────────
-// These mirror what your Supabase tables will look like.
-// When you connect Supabase, replace mock data imports with real queries.
+// ── Rolling 7-Day Plant Logistics Types ─────────────────
 
-export interface Product {
-  id: string;
-  name: string;
-  sku: string;
-  category: string;
-  quantity: number;
-  reorderLevel: number;
-  unitPrice: number;
-  warehouse: string;
-  lastUpdated: string;
+export interface UploadBatch {
+  id: number;
+  upload_date: string; // YYYY-MM-DD
+  created_at: string;
 }
 
-export interface Supplier {
-  id: string;
-  name: string;
-  contactEmail: string;
-  phone: string;
-  country: string;
-  rating: number; // 1-5
-  status: "active" | "inactive" | "pending";
-  productsSupplied: number;
-}
-
-export interface Order {
-  id: string;
-  orderNumber: string;
-  supplierId: string;
-  supplierName: string;
-  status: "pending" | "confirmed" | "shipped" | "delivered" | "cancelled";
-  totalAmount: number;
-  currency: string;
-  orderDate: string;
-  expectedDelivery: string;
-  items: number;
-}
-
-export interface Shipment {
-  id: string;
-  trackingNumber: string;
-  orderId: string;
-  orderNumber: string;
-  carrier: string;
-  status: "preparing" | "in_transit" | "customs" | "delivered" | "delayed";
-  origin: string;
-  destination: string;
-  departureDate: string;
-  estimatedArrival: string;
+export interface LogisticsRecord {
+  id: number;
+  batch_id: number;
+  plant: string;
+  location: string;
+  pgi_no: string;
+  pgi_date: string;
+  invoice_no: string;
+  invoice_date: string;
+  mode: string;
+  case_count: number;
   weight: number;
+  volume: number;
+  amount: number;
+  preferred_mode: string;
+  preferred_edd: string;
+  dispatch_remark: string;
+  eod_data: string;
+  is_ready: boolean;
+  created_at: string;
 }
 
 export interface DashboardStats {
-  totalProducts: number;
-  lowStockItems: number;
-  activeOrders: number;
-  totalSuppliers: number;
-  pendingShipments: number;
-  totalInventoryValue: number;
-  ordersThisMonth: number;
-  deliveredThisMonth: number;
+  total: number;
+  inProcess: number;
+  ready: number;
+  totalAmount: number;
+  totalWeight: number;
+  totalVolume: number;
+}
+
+export interface RecordsResponse {
+  batch: UploadBatch | null;
+  in_process_list: LogisticsRecord[];
+  ready_list: LogisticsRecord[];
+  stats: DashboardStats;
+}
+
+export interface PlantHistoryRecord {
+  upload_date: string;
+  mode: string;
+  weight: number;
+  amount: number;
+  invoice_no: string;
+  eod_data: string;
 }
 
 export type StatusVariant = "success" | "warning" | "danger" | "info" | "neutral";
+ 

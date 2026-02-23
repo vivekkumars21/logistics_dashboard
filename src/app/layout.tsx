@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Sidebar from "@/components/Sidebar/Sidebar";
+import Navbar from "@/components/Navbar/Navbar";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SupplyChain — Manage Your Supply Chain",
-  description: "Supply chain management dashboard MVP",
+  title: "Logistics — Shipment Dashboard",
+  description: "Logistics management dashboard",
 };
 
 export default function RootLayout({
@@ -26,10 +26,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <div className="app-shell">
-          <Sidebar />
-          <main className="main-content">{children}</main>
-        </div>
+        <Navbar />
+        <main className="main-content">{children}</main>
       </body>
     </html>
   );

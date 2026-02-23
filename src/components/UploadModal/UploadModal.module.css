@@ -1,0 +1,161 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal {
+  background: #fff;
+  border-radius: 20px;
+  padding: 32px;
+  width: 520px;
+  max-width: 90vw;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1a1f36;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  color: #6b7280;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeBtn:hover {
+  background: #f3f4f6;
+  color: #1a1f36;
+}
+
+.dropzone {
+  border: 2px dashed #d1d5db;
+  border-radius: 16px;
+  padding: 40px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 20px;
+}
+
+.dropzone:hover,
+.dragActive {
+  border-color: #1a9bfc;
+  background: #f0f8ff;
+}
+
+.fileInput {
+  display: none;
+}
+
+.uploadIcon {
+  margin: 0 auto 16px;
+  display: block;
+}
+
+.dropText {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 4px;
+}
+
+.dropHint {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.fileName {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1a9bfc;
+}
+
+.error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  color: #991b1b;
+  font-size: 0.85rem;
+}
+
+.errorList {
+  margin-top: 8px;
+  padding-left: 20px;
+}
+
+.errorList li {
+  margin-top: 4px;
+  font-size: 0.8rem;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.cancelBtn {
+  padding: 10px 24px;
+  border: 1px solid #e8ecf1;
+  border-radius: 10px;
+  background: #fff;
+  color: #374151;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.cancelBtn:hover {
+  background: #f3f4f6;
+}
+
+.cancelBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.uploadBtn {
+  padding: 10px 28px;
+  border: none;
+  border-radius: 10px;
+  background: #1a9bfc;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s ease;
+}
+
+.uploadBtn:hover:not(:disabled) {
+  background: #0d8ae8;
+}
+
+.uploadBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

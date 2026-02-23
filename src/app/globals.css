@@ -1,29 +1,13 @@
 :root {
-  --background: #f8f9fb;
-  --foreground: #111827;
-  --sidebar-bg: #ffffff;
+  --background: #eef2f7;
+  --foreground: #1a1f36;
   --card-bg: #ffffff;
-  --border: #e5e7eb;
-  --hover-bg: #f3f4f6;
-  --table-header: #fafbfc;
+  --border: #e8ecf1;
+  --hover-bg: #f5f7fa;
+  --table-header: #f8fafc;
   --text-secondary: #6b7280;
-  --accent: #2563eb;
-  --accent-hover: #1d4ed8;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0f1117;
-    --foreground: #f3f4f6;
-    --sidebar-bg: #161822;
-    --card-bg: #1a1c28;
-    --border: #2d303e;
-    --hover-bg: #22253a;
-    --table-header: #16182299;
-    --text-secondary: #9ca3af;
-    --accent: #3b82f6;
-    --accent-hover: #2563eb;
-  }
+  --accent: #1a9bfc;
+  --accent-hover: #0d8ae8;
 }
 
 html,
@@ -52,27 +36,15 @@ a {
 }
 
 /* ── App Shell ──────────────────────────────────────────── */
-.app-shell {
-  display: flex;
-  min-height: 100vh;
-}
-
 .main-content {
-  margin-left: 260px;
-  flex: 1;
-  padding: 36px 40px;
-  min-height: 100vh;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 28px 32px;
+  min-height: calc(100vh - 64px);
 }
 
 @media (max-width: 768px) {
   .main-content {
-    margin-left: 0;
     padding: 20px 16px;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
   }
 }

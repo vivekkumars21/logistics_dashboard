@@ -2,7 +2,7 @@
   width: 100%;
   overflow-x: auto;
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: 16px;
   background: var(--card-bg);
 }
 
@@ -14,11 +14,11 @@
 
 .th {
   text-align: left;
-  padding: 14px 18px;
+  padding: 16px 20px;
   font-weight: 600;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
   color: var(--text-secondary);
   background: var(--table-header);
   border-bottom: 1px solid var(--border);
@@ -26,10 +26,11 @@
 }
 
 .td {
-  padding: 14px 18px;
+  padding: 18px 20px;
   border-bottom: 1px solid var(--border);
   color: var(--foreground);
   vertical-align: middle;
+  font-size: 0.875rem;
 }
 
 .tr:last-child .td {
@@ -44,4 +45,59 @@
   padding: 40px 18px;
   text-align: center;
   color: var(--text-secondary);
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+}
+
+.pageInfo {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+}
+
+.pageButtons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pageBtn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card-bg);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pageBtn:hover:not(:disabled) {
+  background: var(--hover-bg);
+  color: var(--foreground);
+}
+
+.pageBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pageBtn.active {
+  background: #1a9bfc;
+  color: #fff;
+  border-color: #1a9bfc;
 }

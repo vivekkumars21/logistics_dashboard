@@ -17,6 +17,7 @@ const variantMap: Record<StatusVariant, string> = {
 export default function StatusBadge({ label, variant }: StatusBadgeProps) {
   return (
     <span className={`${styles.badge} ${variantMap[variant]}`}>
+      <span className={styles.dot} />
       {label}
     </span>
   );
