@@ -5,7 +5,8 @@ import StatsCard from "@/components/StatsCard/StatsCard";
 import DataTable from "@/components/DataTable/DataTable";
 import StatusBadge from "@/components/StatusBadge/StatusBadge";
 import UploadModal from "@/components/UploadModal/UploadModal";
-import PlantHistory from "@/components/PlantHistory/PlantHistory";
+import DetailModal from "@/components/DetailModal/DetailModal";
+import RecordDetailModal from "@/components/RecordDetailModal/RecordDetailModal";
 import { LogisticsRecord, UploadBatch, DashboardStats, RecordsResponse } from "@/types";
 import styles from "./dashboard.module.css";
 
@@ -25,8 +26,11 @@ export default function DashboardPage() {
   const [search, setSearch] = useState("");
   const [uploadOpen, setUploadOpen] = useState(false);
 
-  // Plant history modal
-  const [historyPlant, setHistoryPlant] = useState<string | null>(null);
+  // Plant history + remarks modal (click on plant ID)
+  const [historyRecord, setHistoryRecord] = useState<LogisticsRecord | null>(null);
+
+  // Raw record detail modal (click on three dots)
+  const [rawDetailRecord, setRawDetailRecord] = useState<LogisticsRecord | null>(null);
 
   // Data from API
   const [batches, setBatches] = useState<UploadBatch[]>([]);
@@ -73,17 +77,62 @@ export default function DashboardPage() {
     fetchRecords();
   }, [fetchRecords]);
 
+  // Helper to update a record in local state without re-fetching
+  const updateRecordLocally = (recordId: number, updates: Partial<LogisticsRecord>) => {
+    setData((prev) => {
+      if (!prev) return prev;
+      const patch = (list: LogisticsRecord[]) =>
+        list.map((r) => (r.id === recordId ? { ...r, ...updates } : r));
+
+      const newInProcess = patch(prev.in_process_list);
+      const newReady = patch(prev.ready_list);
+
+      // If is_ready changed, move the record between lists
+      if ("is_ready" in updates) {
+        const allPatched = [...newInProcess, ...newReady];
+        return {
+          ...prev,
+          in_process_list: allPatched.filter((r) => !r.is_ready),
+          ready_list: allPatched.filter((r) => r.is_ready),
+          stats: {
+            ...prev.stats,
+            inProcess: allPatched.filter((r) => !r.is_ready).length,
+            ready: allPatched.filter((r) => r.is_ready).length,
+          },
+        };
+      }
+
+      return { ...prev, in_process_list: newInProcess, ready_list: newReady };
+    });
+  };
+
+  // Update remark
+  const updateRemark = async (recordId: number, remark: string) => {
+    updateRecordLocally(recordId, { remark });
+    try {
+      await fetch(`/api/records/${recordId}/ready`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ remark }),
+      });
+    } catch (err) {
+      console.error("Failed to update remark:", err);
+      fetchRecords(); // rollback on error
+    }
+  };
+
   // Toggle ready status
   const toggleReady = async (recordId: number, currentReady: boolean) => {
+    updateRecordLocally(recordId, { is_ready: !currentReady });
     try {
       await fetch(`/api/records/${recordId}/ready`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ is_ready: !currentReady }),
       });
-      fetchRecords();
     } catch (err) {
       console.error("Failed to toggle ready:", err);
+      fetchRecords(); // rollback on error
     }
   };
 
@@ -116,7 +165,8 @@ export default function DashboardPage() {
           r.invoice_no.toLowerCase().includes(q) ||
           r.pgi_no.toLowerCase().includes(q) ||
           r.mode.toLowerCase().includes(q) ||
-          r.dispatch_remark.toLowerCase().includes(q)
+          r.dispatch_remark.toLowerCase().includes(q) ||
+          (r.remark && r.remark.toLowerCase().includes(q))
       );
     }
 
@@ -143,11 +193,19 @@ export default function DashboardPage() {
         onSuccess={handleUploadSuccess}
       />
 
-      {/* Plant History Modal */}
-      <PlantHistory
-        plant={historyPlant ?? ""}
-        open={!!historyPlant}
-        onClose={() => setHistoryPlant(null)}
+      {/* Detail Modal — Plant history + remarks (plant click) */}
+      <DetailModal
+        record={historyRecord}
+        open={!!historyRecord}
+        onClose={() => setHistoryRecord(null)}
+        onRemarkSave={updateRemark}
+      />
+
+      {/* Record Detail Modal — Raw Excel fields (three dots) */}
+      <RecordDetailModal
+        record={rawDetailRecord}
+        open={!!rawDetailRecord}
+        onClose={() => setRawDetailRecord(null)}
       />
 
       {/* Stats Row */}
@@ -215,11 +273,13 @@ export default function DashboardPage() {
             >
               {batches.map((b) => (
                 <option key={b.id} value={b.id}>
-                  {new Date(b.upload_date + "T00:00:00").toLocaleDateString("en-IN", {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                  })}
+                  {(() => {
+                    const dt = new Date(b.upload_date + "T00:00:00");
+                    const dd = String(dt.getDate()).padStart(2, "0");
+                    const mm = String(dt.getMonth() + 1).padStart(2, "0");
+                    const yyyy = dt.getFullYear();
+                    return `${dd}-${mm}-${yyyy}`;
+                  })()}
                 </option>
               ))}
             </select>
@@ -261,7 +321,29 @@ export default function DashboardPage() {
             + Upload Excel
           </button>
         </div>
+      ) : displayRecords.length === 0 ? (
+        <div className={`${styles.emptyState} ${styles.fadeIn}`} key={activeTab}>
+          <svg width="44" height="44" viewBox="0 0 44 44" fill="none" style={{ marginBottom: 14 }}>
+            <circle cx="22" cy="22" r="20" stroke="#d1d5db" strokeWidth="1.5" />
+            <path d="M16 22h12M22 16v12" stroke="#d1d5db" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+          <h3>
+            {activeTab === "ready"
+              ? "No ready shipments"
+              : activeTab === "in_process"
+              ? "All shipments are ready"
+              : "No shipments found"}
+          </h3>
+          <p>
+            {activeTab === "ready"
+              ? "Mark shipments as ready using the checkbox."
+              : activeTab === "in_process"
+              ? "All items have been marked as ready."
+              : "Try a different search or batch."}
+          </p>
+        </div>
       ) : (
+        <div className={styles.fadeIn} key={activeTab}>
         <DataTable
           keyField="id"
           data={displayRecords}
@@ -282,43 +364,26 @@ export default function DashboardPage() {
             },
             {
               key: "plant",
-              header: "Plant",
+              header: "plant",
               render: (row) => (
                 <button
                   className={styles.plantBtn}
-                  onClick={() => setHistoryPlant(row.plant)}
-                  title={`View 7-day history for ${row.plant}`}
+                  onClick={() => setHistoryRecord(row)}
+                  title={`View history for ${row.plant}`}
                 >
                   {row.plant}
                 </button>
               ),
             },
             { key: "location", header: "Location" },
-            { key: "pgi_no", header: "PGI No." },
-            { key: "pgi_date", header: "PGI Date" },
+            { key: "pgi_no", header: "PGI NO." },
             { key: "invoice_no", header: "Invoice No." },
-            { key: "mode", header: "Mode" },
-            { key: "case_count", header: "Case" },
-            {
-              key: "weight",
-              header: "Weight",
-              render: (row) => (row.weight ?? 0).toFixed(2),
-            },
-            {
-              key: "volume",
-              header: "Volume",
-              render: (row) => (row.volume ?? 0).toFixed(2),
-            },
-            {
-              key: "amount",
-              header: "Amount",
-              render: (row) => formatCurrency(row.amount ?? 0),
-            },
-            { key: "preferred_mode", header: "Pref. Mode" },
-            { key: "preferred_edd", header: "Pref. EDD" },
+            { key: "invoice_date", header: "INV DT." },
+            { key: "preferred_mode", header: "Preferred Mode" },
+            { key: "preferred_edd", header: "Preferred EDD" },
             {
               key: "dispatch_remark",
-              header: "Dispatch",
+              header: "Dispatch Remark",
               render: (row) => (
                 <StatusBadge
                   label={row.dispatch_remark || "—"}
@@ -334,8 +399,27 @@ export default function DashboardPage() {
                 />
               ),
             },
+            {
+              key: "actions",
+              header: "",
+              render: (row) => (
+                <button
+                  className={styles.dotsBtn}
+                  onClick={() => setRawDetailRecord(row)}
+                  title="View all fields"
+                  aria-label="In detail"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <circle cx="8" cy="3" r="1.5" fill="currentColor" />
+                    <circle cx="8" cy="8" r="1.5" fill="currentColor" />
+                    <circle cx="8" cy="13" r="1.5" fill="currentColor" />
+                  </svg>
+                </button>
+              ),
+            },
           ]}
         />
+        </div>
       )}
     </>
   );

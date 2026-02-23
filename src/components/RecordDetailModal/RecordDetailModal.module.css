@@ -1,0 +1,111 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  backdrop-filter: blur(4px);
+}
+
+.modal {
+  background: var(--card-bg, #ffffff);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 28px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--foreground, #1a1f36);
+}
+
+.closeBtn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: var(--hover-bg, #f5f7fa);
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-secondary, #6b7280);
+  transition: background 0.15s;
+}
+
+.closeBtn:hover {
+  background: #e5e7eb;
+  color: #1a1f36;
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.plantBadge {
+  font-size: 0.78rem;
+  font-weight: 700;
+  background: #e0f0ff;
+  color: #1a9bfc;
+  padding: 4px 12px;
+  border-radius: 6px;
+}
+
+.locBadge {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text-secondary, #6b7280);
+  background: var(--hover-bg, #f5f7fa);
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border, #e8ecf1);
+}
+
+.field:nth-last-child(-n+2) {
+  border-bottom: none;
+}
+
+.fieldLabel {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary, #6b7280);
+}
+
+.fieldValue {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--foreground, #1a1f36);
+}

@@ -8,12 +8,23 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await request.json();
-    const isReady = Boolean(body.is_ready);
     const supabase = getSupabase();
+
+    // Build update payload — supports is_ready and/or remark
+    const updatePayload: Record<string, unknown> = {};
+    if ("is_ready" in body) updatePayload.is_ready = Boolean(body.is_ready);
+    if ("remark" in body) updatePayload.remark = String(body.remark);
+
+    if (Object.keys(updatePayload).length === 0) {
+      return NextResponse.json(
+        { error: "No valid fields to update." },
+        { status: 400 }
+      );
+    }
 
     const { data, error } = await supabase
       .from("logistics_records")
-      .update({ is_ready: isReady })
+      .update(updatePayload)
       .eq("id", Number(id))
       .select()
       .single();

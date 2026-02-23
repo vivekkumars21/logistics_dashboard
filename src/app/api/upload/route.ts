@@ -2,31 +2,60 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSupabase } from "@/lib/supabase";
 import * as XLSX from "xlsx";
 
-// ── Required Excel headers (exact match) ───────────────
-const REQUIRED_HEADERS = [
-  "Plant",
-  "Location",
-  "PGI No.",
-  "PGI Date",
-  "Invoice No.",
-  "Invoice Date",
-  "Mode",
-  "No. of Case",
-  "Weight",
-  "Volume",
-  "Amount",
-  "Preferred Mode",
-  "Preferred EDD",
-  "Dispatch Remark",
+// ── Column name mapping (normalized lowercase → standard key) ──
+// Maps all known variations of column headers to a single key.
+const HEADER_ALIASES: Record<string, string> = {
+  "plant":            "plant",
+  "location":         "location",
+  "pgi no.":          "pgi_no",
+  "pgi no":           "pgi_no",
+  "pgi date":         "pgi_date",
+  "pgi dt":           "pgi_date",
+  "pgi dt.":          "pgi_date",
+  "invoice no.":      "invoice_no",
+  "invoice no":       "invoice_no",
+  "inv no.":          "invoice_no",
+  "inv no":           "invoice_no",
+  "invoice date":     "invoice_date",
+  "inv dt.":          "invoice_date",
+  "inv dt":           "invoice_date",
+  "inv date":         "invoice_date",
+  "mode":             "mode",
+  "no. of case":      "case_count",
+  "no of case":       "case_count",
+  "case":             "case_count",
+  "cases":            "case_count",
+  "weight":           "weight",
+  "volume":           "volume",
+  "amount":           "amount",
+  "preferred mode":   "preferred_mode",
+  "pref mode":        "preferred_mode",
+  "preferred edd":    "preferred_edd",
+  "pref edd":         "preferred_edd",
+  "dispatch remark":  "dispatch_remark",
+  "dispatch":         "dispatch_remark",
+  "eod data":         "eod_data",
+  "eod":              "eod_data",
+};
+
+// Keys that must be present after mapping
+const REQUIRED_KEYS = [
+  "plant", "location", "pgi_no", "pgi_date",
+  "invoice_no", "mode", "case_count",
+  "weight", "volume", "amount",
 ];
 
 // ── Helpers ────────────────────────────────────────────
+function normalizeHeader(h: string): string {
+  return h.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
 function parseExcelDate(val: unknown): string {
   if (!val) return "";
   if (val instanceof Date) return val.toISOString().split("T")[0];
   const s = String(val).trim();
 
-  // DD.MM.YYYY or DD-MM-YYYY
+  // DD.MM.YYYY or DD-MM-YYYY or DD/MM/YYYY
   const dmy = s.match(/^(\d{1,2})[.\-/](\d{1,2})[.\-/](\d{2,4})$/);
   if (dmy) {
     const y = dmy[3].length === 2 ? `20${dmy[3]}` : dmy[3];
@@ -46,7 +75,6 @@ function parseExcelDate(val: unknown): string {
 function parseAmount(val: unknown): number {
   if (val == null) return 0;
   if (typeof val === "number") return val;
-  // Remove Indian-style commas: "2,56,675.96"
   const cleaned = String(val).replace(/,/g, "").trim();
   const n = parseFloat(cleaned);
   return isNaN(n) ? 0 : n;
@@ -68,29 +96,55 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(await file.arrayBuffer());
     const workbook = XLSX.read(buffer, { cellDates: true });
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    const rows: Record<string, unknown>[] = XLSX.utils.sheet_to_json(sheet);
+    const rawRows: Record<string, unknown>[] = XLSX.utils.sheet_to_json(sheet);
 
-    if (rows.length === 0) {
+    if (rawRows.length === 0) {
       return NextResponse.json(
         { error: "Excel file is empty." },
         { status: 400 }
       );
     }
 
-    // ── Validate headers ───────────────────────────────
-    const headers = Object.keys(rows[0]);
-    const missing = REQUIRED_HEADERS.filter((h) => !headers.includes(h));
-    const extra = headers.filter((h) => !REQUIRED_HEADERS.includes(h));
+    // ── Build header mapping ───────────────────────────
+    const rawHeaders = Object.keys(rawRows[0]);
+    const headerMap: Record<string, string> = {}; // raw header → standard key
+    const unmapped: string[] = [];
 
-    if (missing.length > 0) {
+    for (const raw of rawHeaders) {
+      const norm = normalizeHeader(raw);
+      const key = HEADER_ALIASES[norm];
+      if (key) {
+        headerMap[raw] = key;
+      } else {
+        unmapped.push(raw);
+      }
+    }
+
+    // Check required keys are present
+    const mappedKeys = new Set(Object.values(headerMap));
+    const missingKeys = REQUIRED_KEYS.filter((k) => !mappedKeys.has(k));
+
+    if (missingKeys.length > 0) {
       return NextResponse.json(
         {
-          error: "Invalid Excel format. Please use official template.",
-          details: { missing, extra },
+          error: "Excel is missing required columns.",
+          details: {
+            missing: missingKeys,
+            unmapped: unmapped.length > 0 ? unmapped : undefined,
+          },
         },
         { status: 400 }
       );
     }
+
+    // ── Normalize rows using header map ────────────────
+    const rows = rawRows.map((raw) => {
+      const mapped: Record<string, unknown> = {};
+      for (const [rawKey, stdKey] of Object.entries(headerMap)) {
+        mapped[stdKey] = raw[rawKey];
+      }
+      return mapped;
+    });
 
     // ── Today's date (auto-assigned) ───────────────────
     const today = new Date().toISOString().split("T")[0];
@@ -119,26 +173,26 @@ export async function POST(request: NextRequest) {
     // ── Parse & insert records ─────────────────────────
     const records = rows
       .filter((row) => {
-        const plant = String(row["Plant"] ?? "").trim().toUpperCase();
+        const plant = String(row["plant"] ?? "").trim().toUpperCase();
         return plant && plant !== "TOTAL" && plant !== "";
       })
       .map((row) => ({
         batch_id: batch.id,
-        plant: String(row["Plant"] ?? "").trim(),
-        location: String(row["Location"] ?? "").trim(),
-        pgi_no: String(row["PGI No."] ?? "").trim(),
-        pgi_date: parseExcelDate(row["PGI Date"]),
-        invoice_no: String(row["Invoice No."] ?? "").trim(),
-        invoice_date: parseExcelDate(row["Invoice Date"]),
-        mode: String(row["Mode"] ?? "").trim(),
-        case_count: Number(row["No. of Case"] ?? 0),
-        weight: parseAmount(row["Weight"]),
-        volume: parseAmount(row["Volume"]),
-        amount: parseAmount(row["Amount"]),
-        preferred_mode: String(row["Preferred Mode"] ?? "").trim(),
-        preferred_edd: parseExcelDate(row["Preferred EDD"]),
-        dispatch_remark: String(row["Dispatch Remark"] ?? "").trim(),
-        eod_data: String(row["EOD Data"] ?? "").trim(),
+        plant: String(row["plant"] ?? "").trim(),
+        location: String(row["location"] ?? "").trim(),
+        pgi_no: String(row["pgi_no"] ?? "").trim(),
+        pgi_date: parseExcelDate(row["pgi_date"]),
+        invoice_no: String(row["invoice_no"] ?? "").trim(),
+        invoice_date: parseExcelDate(row["invoice_date"]),
+        mode: String(row["mode"] ?? "").trim(),
+        case_count: Number(row["case_count"] ?? 0),
+        weight: parseAmount(row["weight"]),
+        volume: parseAmount(row["volume"]),
+        amount: parseAmount(row["amount"]),
+        preferred_mode: String(row["preferred_mode"] ?? "").trim(),
+        preferred_edd: parseExcelDate(row["preferred_edd"]),
+        dispatch_remark: String(row["dispatch_remark"] ?? "").trim(),
+        eod_data: String(row["eod_data"] ?? "").trim(),
         is_ready: false,
       }));
 

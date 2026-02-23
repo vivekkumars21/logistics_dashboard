@@ -6,8 +6,7 @@ import styles from "./Navbar.module.css";
 
 const navItems = [
   { href: "/", label: "Dashboard" },
-  { href: "/analytics", label: "Analytics" },
-  { href: "/reports", label: "Reports" },
+  { href: "/tv", label: "View" },
   { href: "/settings", label: "Settings" },
 ];
 

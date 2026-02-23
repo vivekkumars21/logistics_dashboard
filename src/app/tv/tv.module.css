@@ -1,0 +1,180 @@
+/* ── TV View — Minimal Theme ─────────────── */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  background: #f8f9fb;
+  color: #1a1f36;
+  padding: 24px 32px;
+  min-height: calc(100vh - 64px);
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+}
+
+/* ── Header ──────────────────────────────── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-shrink: 0;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1a1f36;
+  letter-spacing: -0.01em;
+}
+
+.batchLabel {
+  font-size: 0.78rem;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.stat {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #16a34a;
+}
+
+.stat small {
+  font-weight: 400;
+  color: #9ca3af;
+}
+
+.clock {
+  font-size: 0.85rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: #9ca3af;
+}
+
+/* ── Plant Grid ──────────────────────────── */
+.grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 14px;
+  align-content: start;
+}
+
+/* ── Plant Card ──────────────────────────── */
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 22px 14px;
+  border-radius: 12px;
+  text-align: center;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.cardOpen {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+.cardDone {
+  background: #dcfce7;
+  border: 1px solid #86efac;
+}
+
+/* Plant ID — primary */
+.plantId {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a1f36;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.cardDone .plantId {
+  color: #15803d;
+}
+
+/* Location — secondary, below plant ID */
+.location {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #9ca3af;
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.cardDone .location {
+  color: #4ade80;
+}
+
+/* ── Footer ──────────────────────────────── */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+  flex-shrink: 0;
+}
+
+.live {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #ef4444;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.liveDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ef4444;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.75); }
+}
+
+.footerText {
+  font-size: 0.65rem;
+  color: #d1d5db;
+}
+
+/* ── Responsive ──────────────────────────── */
+@media (max-width: 1280px) {
+  .grid { grid-template-columns: repeat(5, 1fr); }
+}
+
+@media (max-width: 960px) {
+  .grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .grid { grid-template-columns: repeat(3, 1fr); }
+  .title { font-size: 1rem; }
+}

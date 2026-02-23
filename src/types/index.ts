@@ -24,6 +24,7 @@ export interface LogisticsRecord {
   preferred_edd: string;
   dispatch_remark: string;
   eod_data: string;
+  remark: string;
   is_ready: boolean;
   created_at: string;
 }
