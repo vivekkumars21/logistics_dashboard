@@ -1,5 +1,71 @@
 /* ═══ Dashboard — Minimal Redesign ═══ */
 
+.roleInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 10px;
+  color: var(--foreground, #111827);
+  font-size: 0.9rem;
+  animation: slideDown 0.3s ease;
+}
+
+.roleInfo svg {
+  flex-shrink: 0;
+  color: #6366f1;
+}
+
+.roleText {
+  color: var(--text-secondary, #6b7280);
+}
+
+.roleText strong {
+  color: var(--foreground, #111827);
+  font-weight: 600;
+}
+
+.roleInfo-admin {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(139, 92, 246, 0.04) 100%);
+  border-color: rgba(139, 92, 246, 0.2);
+}
+
+.roleInfo-admin svg {
+  color: #8b5cf6;
+}
+
+.roleInfo-user {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(59, 130, 246, 0.04) 100%);
+  border-color: rgba(59, 130, 246, 0.2);
+}
+
+.roleInfo-user svg {
+  color: #3b82f6;
+}
+
+.roleInfo-viewer {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0.04) 100%);
+  border-color: rgba(16, 185, 129, 0.2);
+}
+
+.roleInfo-viewer svg {
+  color: #10b981;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .statsGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -102,6 +168,40 @@
 
 .newShipmentBtn:hover { background: var(--accent-hover); }
 .newShipmentBtn:active { transform: scale(0.97); }
+
+.editModeBtn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 16px;
+  height: 38px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.editModeBtn:hover {
+  border-color: #f97316;
+  color: #f97316;
+}
+
+.editModeActive {
+  background: #fff7ed;
+  border-color: #f97316;
+  color: #f97316;
+  box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.1);
+}
+
+.editModeActive:hover {
+  background: #fed7a8;
+}
 
 /* ── Tabs ────────────────────────────────── */
 .tabs {
@@ -397,6 +497,122 @@
 
 .dispatchCustomBtn:hover { background: var(--accent-hover); }
 .dispatchCustomBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Delete Confirmation Modal ──────────────────────────── */
+.confirmOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+.confirmModal {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  max-width: 400px;
+  width: 90%;
+  animation: slideUp 0.3s ease;
+}
+
+.confirmHeader {
+  padding: 20px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--foreground);
+}
+
+.confirmBody {
+  padding: 20px;
+}
+
+.confirmBody p {
+  margin: 0 0 12px 0;
+  color: var(--foreground);
+  font-size: 0.9rem;
+}
+
+.confirmDetails {
+  background: var(--hover-bg);
+  padding: 12px;
+  border-radius: 6px;
+  color: var(--text-secondary);
+}
+
+.confirmWarning {
+  color: #991b1b;
+  font-size: 0.85rem;
+  margin-bottom: 0 !important;
+}
+
+.confirmFooter {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding: 16px 20px;
+  border-top: 1px solid var(--border);
+}
+
+.btnCancel {
+  padding: 10px 18px;
+  background: var(--hover-bg);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.btnCancel:hover:not(:disabled) {
+  background: #eaecf0;
+}
+
+.btnCancel:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btnDelete {
+  padding: 10px 18px;
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.btnDelete:hover:not(:disabled) {
+  background: #fecaca;
+  color: #7f1d1d;
+}
+
+.btnDelete:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
 
 /* ── Responsive ──────────────────────────── */
 @media (max-width: 640px) {

@@ -1,0 +1,290 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.loginBox {
+  background: var(--card-bg, #ffffff);
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 420px;
+  padding: 40px;
+  animation: slideUp 0.5s ease;
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.logo {
+  display: inline-block;
+  margin-bottom: 16px;
+}
+
+.header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--foreground, #111827);
+  margin: 0 0 8px 0;
+  letter-spacing: -0.5px;
+}
+
+.header p {
+  font-size: 0.9rem;
+  color: var(--text-secondary, #6b7280);
+  margin: 0;
+}
+
+.form {
+  margin-bottom: 24px;
+}
+
+.formGroup {
+  margin-bottom: 18px;
+}
+
+.formGroup label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--foreground, #111827);
+  margin-bottom: 8px;
+  letter-spacing: 0.3px;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border, #eaecf0);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: var(--foreground, #111827);
+  background: var(--card-bg, #ffffff);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.input::placeholder {
+  color: var(--text-secondary, #6b7280);
+}
+
+.input:disabled {
+  background: var(--hover-bg, #f9fafb);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+  border-left: 3px solid #ef4444;
+}
+
+.submitBtn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.submitBtn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.submitBtn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.divider {
+  text-align: center;
+  color: var(--text-secondary, #6b7280);
+  font-size: 0.8rem;
+  margin: 24px 0;
+  position: relative;
+}
+
+.divider::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: 1px;
+  background: var(--border, #eaecf0);
+  z-index: 0;
+}
+
+.divider {
+  position: relative;
+  z-index: 1;
+}
+
+.divider::after {
+  content: attr(data-content);
+}
+
+.demoButtons {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.demoBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 14px;
+  border: 1.5px solid var(--border, #eaecf0);
+  border-radius: 8px;
+  background: var(--card-bg, #ffffff);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  text-align: center;
+}
+
+.demoBtn:hover:not(:disabled) {
+  border-color: currentColor;
+  transform: translateY(-2px);
+}
+
+.demoBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.adminBtn {
+  border-color: #8b5cf6;
+  color: #7c3aed;
+}
+
+.adminBtn:hover:not(:disabled) {
+  background: rgba(139, 92, 246, 0.05);
+}
+
+.userBtn {
+  border-color: #3b82f6;
+  color: #2563eb;
+}
+
+.userBtn:hover:not(:disabled) {
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.viewerBtn {
+  border-color: #10b981;
+  color: #059669;
+}
+
+.viewerBtn:hover:not(:disabled) {
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.role {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.credentials {
+  font-size: 0.72rem;
+  opacity: 0.7;
+  word-break: break-all;
+}
+
+.footer {
+  background: var(--hover-bg, #f9fafb);
+  padding: 14px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  color: var(--text-secondary, #6b7280);
+  text-align: center;
+}
+
+.footer p {
+  margin: 0 0 8px 0;
+  font-weight: 600;
+  color: var(--foreground, #111827);
+}
+
+.footer ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer li {
+  margin: 4px 0;
+  font-size: 0.75rem;
+}
+
+@media (max-width: 480px) {
+  .loginBox {
+    padding: 28px 20px;
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
+  }
+
+  .header p {
+    font-size: 0.85rem;
+  }
+
+  .demoButtons {
+    grid-template-columns: 1fr;
+  }
+
+  .submitBtn {
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+}

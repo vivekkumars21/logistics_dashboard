@@ -58,3 +58,33 @@ export async function PATCH(
     );
   }
 }
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const supabase = getSupabase();
+
+    const { error } = await supabase
+      .from("logistics_records")
+      .delete()
+      .eq("id", Number(id));
+
+    if (error) {
+      return NextResponse.json(
+        { error: "Failed to delete record.", details: error.message },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ success: true, message: "Record deleted." });
+  } catch (err) {
+    console.error("Delete error:", err);
+    return NextResponse.json(
+      { error: "Server error." },
+      { status: 500 }
+    );
+  }
+}

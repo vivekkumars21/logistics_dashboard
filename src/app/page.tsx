@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
+import { useAuth } from "@/lib/auth-context";
 import StatsCard from "@/components/StatsCard/StatsCard";
 import DataTable from "@/components/DataTable/DataTable";
 import UploadModal from "@/components/UploadModal/UploadModal";
@@ -152,15 +153,22 @@ function DispatchRemarkCell({ value, onChange }: { value: string; onChange: (v: 
 }
 
 export default function DashboardPage() {
+  const { user } = useAuth();
+  
   const [activeTab, setActiveTab] = useState<TabKey>("in_process");
   const [search, setSearch] = useState("");
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
 
   // Plant history + remarks modal (click on plant ID)
   const [historyRecord, setHistoryRecord] = useState<LogisticsRecord | null>(null);
 
   // Raw record detail modal (click on three dots)
   const [rawDetailRecord, setRawDetailRecord] = useState<LogisticsRecord | null>(null);
+
+  // Delete confirmation modal
+  const [deleteConfirm, setDeleteConfirm] = useState<LogisticsRecord | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Data from API
   const [batches, setBatches] = useState<UploadBatch[]>([]);
@@ -279,6 +287,39 @@ export default function DashboardPage() {
     }
   };
 
+  // Delete record
+  const deleteRecord = async (record: LogisticsRecord) => {
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/records/${record.id}/ready`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        throw new Error("Failed to delete record");
+      }
+      // Remove from local state
+      setData((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          in_process_list: prev.in_process_list.filter((r) => r.id !== record.id),
+          ready_list: prev.ready_list.filter((r) => r.id !== record.id),
+          stats: {
+            ...prev.stats,
+            inProcess: prev.in_process_list.filter((r) => r.id !== record.id).length,
+            ready: prev.ready_list.filter((r) => r.id !== record.id).length,
+          },
+        };
+      });
+      setDeleteConfirm(null);
+    } catch (err) {
+      console.error("Failed to delete record:", err);
+      fetchRecords(); // rollback on error
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   // After successful upload
   const handleUploadSuccess = () => {
     setSelectedBatchId(null);
@@ -366,6 +407,51 @@ export default function DashboardPage() {
         }}
       />
 
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm && (
+        <div className={styles.confirmOverlay} onClick={() => !isDeleting && setDeleteConfirm(null)}>
+          <div className={styles.confirmModal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.confirmHeader}>Delete Record</div>
+            <div className={styles.confirmBody}>
+              <p>Are you sure you want to delete this record?</p>
+              <p className={styles.confirmDetails}>
+                <strong>{deleteConfirm.plant}</strong> — Invoice: {deleteConfirm.invoice_no}
+              </p>
+              <p className={styles.confirmWarning}>This action cannot be undone.</p>
+            </div>
+            <div className={styles.confirmFooter}>
+              <button
+                className={styles.btnCancel}
+                onClick={() => setDeleteConfirm(null)}
+                disabled={isDeleting}
+              >
+                Cancel
+              </button>
+              <button
+                className={styles.btnDelete}
+                onClick={() => deleteRecord(deleteConfirm)}
+                disabled={isDeleting}
+              >
+                {isDeleting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* User Role Info */}
+      {user && (
+        <div className={`${styles.roleInfo} ${styles[`roleInfo-${user.role}`]}`}>
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <circle cx="9" cy="6" r="2.5" stroke="currentColor" strokeWidth="1.5" />
+            <path d="M2 14c0-2.2 3-4 7-4s7 1.8 7 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+          <span className={styles.roleText}>
+            Logged in as <strong>{user.name}</strong> ({user.role === "admin" ? "👤 Administrator" : user.role === "user" ? "👥 User" : "👁️ Viewer"})
+          </span>
+        </div>
+      )}
+
       {/* Stats Row */}
       <div className={styles.statsGrid}>
         <StatsCard
@@ -442,9 +528,20 @@ export default function DashboardPage() {
               ))}
             </select>
           )}
-          <button className={styles.newShipmentBtn} onClick={() => setUploadOpen(true)}>
-            + Upload Excel
-          </button>
+          {user?.role !== "viewer" && (
+            <button className={styles.newShipmentBtn} onClick={() => setUploadOpen(true)}>
+              + Upload Excel
+            </button>
+          )}
+          {user?.role === "admin" && (
+            <button 
+              className={`${styles.editModeBtn} ${editMode ? styles.editModeActive : ""}`}
+              onClick={() => setEditMode(!editMode)}
+              title={editMode ? "Exit edit mode" : "Enter edit mode to delete records"}
+            >
+              {editMode ? "✓ Edit Mode" : "Edit"}
+            </button>
+          )}
         </div>
       </div>
 
@@ -507,6 +604,8 @@ export default function DashboardPage() {
           data={displayRecords}
           pageSize={10}
           totalLabel="entries"
+          onDelete={(row) => setDeleteConfirm(row as LogisticsRecord)}
+          showDeleteButton={editMode}
           columns={[
             {
               key: "is_ready",
@@ -516,6 +615,7 @@ export default function DashboardPage() {
                   type="checkbox"
                   checked={row.is_ready}
                   onChange={() => toggleReady(row.id, row.is_ready)}
+                  disabled={user?.role === "viewer"}
                   className={styles.checkbox}
                 />
               ),
@@ -551,10 +651,16 @@ export default function DashboardPage() {
               key: "dispatch_remark",
               header: "Dispatch Remark",
               render: (row) => (
-                <DispatchRemarkCell
-                  value={row.dispatch_remark}
-                  onChange={(val) => updateDispatchRemark(row.id, val)}
-                />
+                user?.role === "viewer" ? (
+                  <span style={{ fontSize: "0.82rem", color: "var(--text-secondary, #6b7280)" }}>
+                    {row.dispatch_remark || "—"}
+                  </span>
+                ) : (
+                  <DispatchRemarkCell
+                    value={row.dispatch_remark}
+                    onChange={(val) => updateDispatchRemark(row.id, val)}
+                  />
+                )
               ),
             },
             {

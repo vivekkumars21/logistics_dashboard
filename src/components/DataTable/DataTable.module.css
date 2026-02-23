@@ -114,6 +114,29 @@
   border-color: var(--accent, #2563eb);
 }
 
+.deleteBtn {
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all var(--transition, 0.2s);
+}
+
+.deleteBtn:hover:not(:disabled) {
+  background: #fecaca;
+  color: #7f1d1d;
+  border-color: #fca5a5;
+}
+
+.deleteBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* ── Responsive ── */
 @media (max-width: 640px) {
   .th, .td { padding: 8px 10px; font-size: 0.76rem; }

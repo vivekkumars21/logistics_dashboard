@@ -15,42 +15,71 @@ interface DataTableProps<T> {
   keyField: keyof T;
   pageSize?: number;
   totalLabel?: string;
+  onDelete?: (row: T) => void;
+  showDeleteButton?: boolean;
 }
 
-export default function DataTable<T>({ columns, data, keyField, pageSize = 5, totalLabel = "entries" }: DataTableProps<T>) {
+export default function DataTable<T>({ columns, data, keyField, pageSize = 5, totalLabel = "entries", onDelete, showDeleteButton = false }: DataTableProps<T>) {
   const [page, setPage] = useState(1);
+  const [deletingId, setDeletingId] = useState<string | number | null>(null);
+  
   const totalPages = Math.ceil(data.length / pageSize);
   const start = (page - 1) * pageSize;
   const end = start + pageSize;
   const pageData = data.slice(start, end);
+
+  const handleDelete = async (row: T) => {
+    const id = row[keyField];
+    setDeletingId(id);
+    if (onDelete) {
+      onDelete(row);
+    }
+    setDeletingId(null);
+  };
+
+  const columnsToShow = showDeleteButton ? [...columns] : columns;
 
   return (
     <div className={styles.wrapper}>
       <table className={styles.table}>
         <thead>
           <tr>
-            {columns.map((col) => (
+            {columnsToShow.map((col) => (
               <th key={col.key} className={styles.th}>{col.header}</th>
             ))}
+            {showDeleteButton && <th className={styles.th}>Action</th>}
           </tr>
         </thead>
         <tbody>
           {pageData.length === 0 ? (
             <tr>
-              <td colSpan={columns.length} className={styles.empty}>
+              <td colSpan={columnsToShow.length + (showDeleteButton ? 1 : 0)} className={styles.empty}>
                 No data available
               </td>
             </tr>
           ) : (
             pageData.map((row) => (
               <tr key={String(row[keyField])} className={styles.tr}>
-                {columns.map((col) => (
+                {columnsToShow.map((col) => (
                   <td key={col.key} className={styles.td}>
                     {col.render
                       ? col.render(row)
                       : String((row as Record<string, unknown>)[col.key] ?? "")}
                   </td>
                 ))}
+                {showDeleteButton && (
+                  <td className={styles.td}>
+                    <button
+                      className={styles.deleteBtn}
+                      onClick={() => handleDelete(row)}
+                      disabled={deletingId === row[keyField]}
+                      title="Delete record"
+                      aria-label="Delete"
+                    >
+                      {deletingId === row[keyField] ? "..." : "Delete"}
+                    </button>
+                  </td>
+                )}
               </tr>
             ))
           )}

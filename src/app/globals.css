@@ -64,3 +64,24 @@ html { scroll-behavior: smooth; }
 @media (max-width: 640px) {
   .main-content { padding: 16px 12px; }
 }
+
+/* ── Loading State ──────────────────────────────────────────── */
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: var(--background);
+}
+
+.spinner {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { opacity: 0.4; }
+  to { opacity: 1; }
+}
