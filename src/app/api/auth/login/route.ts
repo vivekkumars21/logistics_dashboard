@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSupabase } from "@/lib/supabase";
+import { getSupabaseAdmin } from "@/lib/supabase";
 
 interface LoginRequest {
   email: string;
@@ -29,16 +29,25 @@ export async function POST(request: NextRequest): Promise<NextResponse<LoginResp
       );
     }
 
-    const supabase = getSupabase();
+    const supabase = getSupabaseAdmin();
 
     // Query users table
     const { data: users, error: queryError } = await supabase
       .from("users")
       .select("id, email, name, role, password")
       .eq("email", email)
-      .single();
+      .maybeSingle();
 
-    if (queryError || !users) {
+    if (queryError) {
+      console.error("Database query error:", queryError);
+      return NextResponse.json(
+        { success: false, error: `Database error: ${queryError.message}` },
+        { status: 500 }
+      );
+    }
+
+    if (!users) {
+      console.log("User not found:", email);
       return NextResponse.json(
         { success: false, error: "Invalid email or password" },
         { status: 401 }
@@ -68,7 +77,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<LoginResp
   } catch (err) {
     console.error("Login error:", err);
     return NextResponse.json(
-      { success: false, error: "Server error" },
+      { success: false, error: `Server error: ${err instanceof Error ? err.message : "Unknown error"}` },
       { status: 500 }
     );
   }
