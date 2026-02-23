@@ -85,7 +85,17 @@ export default function TVViewPage() {
 
   const entries = data?.entries ?? [];
   const summary = data?.summary ?? { total: 0, ready: 0, pending: 0 };
-  const batchDate = data?.batch?.upload_date ?? "—";
+  const rawDate = data?.batch?.upload_date ?? "";
+  const batchDate = (() => {
+    if (!rawDate) return "—";
+    if (/^\d{2}-\d{2}-\d{4}$/.test(rawDate)) return rawDate;
+    const dt = new Date(rawDate.includes("T") ? rawDate : rawDate + "T00:00:00");
+    if (isNaN(dt.getTime())) return rawDate;
+    const dd = String(dt.getDate()).padStart(2, "0");
+    const mm = String(dt.getMonth() + 1).padStart(2, "0");
+    const yyyy = dt.getFullYear();
+    return `${dd}-${mm}-${yyyy}`;
+  })();
 
   return (
     <div className={styles.container}>

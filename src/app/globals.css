@@ -1,13 +1,19 @@
 :root {
-  --background: #eef2f7;
-  --foreground: #1a1f36;
+  --background: #f4f6f9;
+  --foreground: #111827;
   --card-bg: #ffffff;
-  --border: #e8ecf1;
-  --hover-bg: #f5f7fa;
-  --table-header: #f8fafc;
+  --border: #eaecf0;
+  --hover-bg: #f9fafb;
+  --table-header: #fafbfc;
   --text-secondary: #6b7280;
-  --accent: #1a9bfc;
-  --accent-hover: #0d8ae8;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --radius: 10px;
+  --radius-lg: 14px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.06);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.1);
+  --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 html,
@@ -35,16 +41,26 @@ a {
   text-decoration: none;
 }
 
+/* ── Smooth scroll & base transitions ── */
+html { scroll-behavior: smooth; }
+
 /* ── App Shell ──────────────────────────────────────────── */
 .main-content {
-  max-width: 1400px;
+  max-width: 1360px;
   margin: 0 auto;
-  padding: 28px 32px;
-  min-height: calc(100vh - 64px);
+  padding: 24px 28px;
+  min-height: calc(100vh - 56px);
+  animation: pageIn 0.35s ease both;
 }
 
-@media (max-width: 768px) {
-  .main-content {
-    padding: 20px 16px;
-  }
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (max-width: 1024px) {
+  .main-content { padding: 20px 20px; }
+}
+@media (max-width: 640px) {
+  .main-content { padding: 16px 12px; }
 }

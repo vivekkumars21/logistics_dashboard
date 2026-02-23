@@ -10,10 +10,23 @@ export async function PATCH(
     const body = await request.json();
     const supabase = getSupabase();
 
-    // Build update payload — supports is_ready and/or remark
+    // Build update payload — supports all editable fields
+    const allowedStrings = [
+      "plant", "location", "pgi_no", "pgi_date",
+      "invoice_no", "invoice_date", "mode",
+      "preferred_mode", "preferred_edd", "dispatch_remark",
+      "eod_data", "remark",
+    ];
+    const allowedNumbers = ["case_count", "weight", "volume", "amount"];
+
     const updatePayload: Record<string, unknown> = {};
     if ("is_ready" in body) updatePayload.is_ready = Boolean(body.is_ready);
-    if ("remark" in body) updatePayload.remark = String(body.remark);
+    for (const key of allowedStrings) {
+      if (key in body) updatePayload[key] = String(body[key]);
+    }
+    for (const key of allowedNumbers) {
+      if (key in body) updatePayload[key] = Number(body[key]) || 0;
+    }
 
     if (Object.keys(updatePayload).length === 0) {
       return NextResponse.json(

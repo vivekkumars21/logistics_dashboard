@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { createPortal } from "react-dom";
 import StatsCard from "@/components/StatsCard/StatsCard";
 import DataTable from "@/components/DataTable/DataTable";
-import StatusBadge from "@/components/StatusBadge/StatusBadge";
 import UploadModal from "@/components/UploadModal/UploadModal";
 import DetailModal from "@/components/DetailModal/DetailModal";
 import RecordDetailModal from "@/components/RecordDetailModal/RecordDetailModal";
@@ -20,6 +20,136 @@ const tabs: { key: TabKey; label: string }[] = [
 
 const formatCurrency = (v: number) =>
   new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 2 }).format(v);
+
+const formatDate = (d: string) => {
+  if (!d) return "—";
+  // If already in DD-MM-YYYY, return as-is
+  if (/^\d{2}-\d{2}-\d{4}$/.test(d)) return d;
+  // Try to parse
+  const dt = new Date(d.includes("T") ? d : d + "T00:00:00");
+  if (isNaN(dt.getTime())) return d;
+  const dd = String(dt.getDate()).padStart(2, "0");
+  const mm = String(dt.getMonth() + 1).padStart(2, "0");
+  const yyyy = dt.getFullYear();
+  return `${dd}-${mm}-${yyyy}`;
+};
+
+// ── Dispatch Remark options with colors ──
+const DISPATCH_OPTIONS = [
+  { value: "DRP", label: "DRP", bg: "#dbeafe", color: "#1e40af", dot: "#3b82f6" },
+  { value: "AUTO REPL", label: "AUTO REPL", bg: "#fff3e0", color: "#e65100", dot: "#f57c00" },
+  { value: "ADDI", label: "ADDI", bg: "#f3e8ff", color: "#7c3aed", dot: "#8b5cf6" },
+  { value: "NOT BY AIR", label: "NOT BY AIR", bg: "#fee2e2", color: "#991b1b", dot: "#ef4444" },
+  { value: "SELECT MODE AS PER EDD", label: "SELECT MODE AS PER EDD", bg: "#dcfce7", color: "#166534", dot: "#22c55e" },
+] as const;
+
+function getDispatchStyle(value: string) {
+  const opt = DISPATCH_OPTIONS.find((o) => o.value === value);
+  if (opt) return { bg: opt.bg, color: opt.color, dot: opt.dot };
+  return { bg: "#f3f4f6", color: "#374151", dot: "#9ca3af" };
+}
+
+function DispatchRemarkCell({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const [custom, setCustom] = useState("");
+  const ref = useRef<HTMLDivElement>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const [pos, setPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+
+  // Close on outside click or scroll
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      const target = e.target as Node;
+      // Ignore clicks on the dropdown (portaled) or the badge button
+      if (ref.current?.contains(target)) return;
+      if (btnRef.current?.contains(target)) return;
+      setOpen(false);
+    };
+    const onScroll = () => setOpen(false);
+    document.addEventListener("mousedown", handler);
+    window.addEventListener("scroll", onScroll, true);
+    return () => {
+      document.removeEventListener("mousedown", handler);
+      window.removeEventListener("scroll", onScroll, true);
+    };
+  }, [open]);
+
+  const handleOpen = () => {
+    if (!open && btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect();
+      const dropdownHeight = 320; // approximate max height
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const top = spaceBelow < dropdownHeight ? rect.top - dropdownHeight : rect.bottom + 4;
+      setPos({ top, left: rect.left });
+    }
+    setOpen(!open);
+  };
+
+  const style = getDispatchStyle(value);
+
+  return (
+    <div className={styles.dispatchCell}>
+      <button
+        ref={btnRef}
+        className={styles.dispatchBadge}
+        style={{ background: style.bg, color: style.color }}
+        onClick={handleOpen}
+        title="Change dispatch remark"
+      >
+        <span className={styles.dispatchDot} style={{ background: style.dot }} />
+        {value || "—"}
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style={{ marginLeft: 4 }}>
+          <path d="M2.5 4L5 6.5L7.5 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+        </svg>
+      </button>
+
+      {open && createPortal(
+        <div
+          ref={ref}
+          className={styles.dispatchDropdown}
+          style={{ position: "fixed", top: pos.top, left: pos.left }}
+        >
+          {DISPATCH_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              className={`${styles.dispatchOpt} ${value === opt.value ? styles.dispatchOptActive : ""}`}
+              style={{ background: value === opt.value ? opt.bg : undefined }}
+              onClick={() => { onChange(opt.value); setOpen(false); }}
+            >
+              <span className={styles.dispatchDot} style={{ background: opt.dot }} />
+              {opt.label}
+            </button>
+          ))}
+          <div className={styles.dispatchCustom}>
+            <input
+              type="text"
+              className={styles.dispatchCustomInput}
+              placeholder="Custom remark..."
+              value={custom}
+              onChange={(e) => setCustom(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && custom.trim()) {
+                  onChange(custom.trim());
+                  setCustom("");
+                  setOpen(false);
+                }
+              }}
+            />
+            <button
+              className={styles.dispatchCustomBtn}
+              disabled={!custom.trim()}
+              onClick={() => { onChange(custom.trim()); setCustom(""); setOpen(false); }}
+            >
+              Set
+            </button>
+          </div>
+        </div>,
+        document.body
+      )}
+    </div>
+  );
+}
 
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<TabKey>("in_process");
@@ -120,7 +250,20 @@ export default function DashboardPage() {
       fetchRecords(); // rollback on error
     }
   };
-
+  // Update dispatch remark
+  const updateDispatchRemark = async (recordId: number, dispatch_remark: string) => {
+    updateRecordLocally(recordId, { dispatch_remark });
+    try {
+      await fetch(`/api/records/${recordId}/ready`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dispatch_remark }),
+      });
+    } catch (err) {
+      console.error("Failed to update dispatch remark:", err);
+      fetchRecords();
+    }
+  };
   // Toggle ready status
   const toggleReady = async (recordId: number, currentReady: boolean) => {
     updateRecordLocally(recordId, { is_ready: !currentReady });
@@ -206,6 +349,21 @@ export default function DashboardPage() {
         record={rawDetailRecord}
         open={!!rawDetailRecord}
         onClose={() => setRawDetailRecord(null)}
+        onSave={async (recordId, updates) => {
+          updateRecordLocally(recordId, updates);
+          // Also update rawDetailRecord so the modal reflects changes
+          setRawDetailRecord((prev) => prev ? { ...prev, ...updates } as LogisticsRecord : prev);
+          try {
+            await fetch(`/api/records/${recordId}/ready`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(updates),
+            });
+          } catch (err) {
+            console.error("Failed to save record:", err);
+            fetchRecords();
+          }
+        }}
       />
 
       {/* Stats Row */}
@@ -378,24 +536,24 @@ export default function DashboardPage() {
             { key: "location", header: "Location" },
             { key: "pgi_no", header: "PGI NO." },
             { key: "invoice_no", header: "Invoice No." },
-            { key: "invoice_date", header: "INV DT." },
+            {
+              key: "invoice_date",
+              header: "INV DT.",
+              render: (row) => formatDate(row.invoice_date),
+            },
             { key: "preferred_mode", header: "Preferred Mode" },
-            { key: "preferred_edd", header: "Preferred EDD" },
+            {
+              key: "preferred_edd",
+              header: "Preferred EDD",
+              render: (row) => formatDate(row.preferred_edd),
+            },
             {
               key: "dispatch_remark",
               header: "Dispatch Remark",
               render: (row) => (
-                <StatusBadge
-                  label={row.dispatch_remark || "—"}
-                  variant={
-                    row.dispatch_remark === "DRP"
-                      ? "info"
-                      : row.dispatch_remark === "AUTO REPL"
-                      ? "warning"
-                      : row.dispatch_remark === "ADDI"
-                      ? "neutral"
-                      : "neutral"
-                  }
+                <DispatchRemarkCell
+                  value={row.dispatch_remark}
+                  onChange={(val) => updateDispatchRemark(row.id, val)}
                 />
               ),
             },
