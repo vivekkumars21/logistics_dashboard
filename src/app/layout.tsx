@@ -17,10 +17,7 @@ export const metadata: Metadata = {
   title: "ZDC Hub Operations — Shipment Dashboard",
   description: "ZDC Hub Operations management dashboard",
   icons: {
-    icon: [
-      { url: "/favicon.svg", type: "image/svg+xml" },
-      { url: "/icon.svg", type: "image/svg+xml", sizes: "any" },
-    ],
+    icon: "/favicon.svg",
     apple: "/icon.svg",
   },
 };

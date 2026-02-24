@@ -1,36 +1,5 @@
 <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="mainGradient" x1="4" y1="4" x2="60" y2="60" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#8b5a8c" />
-      <stop offset="100%" stop-color="#6b9b93" />
-    </linearGradient>
-    <filter id="dropShadow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
-      <feOffset dx="0" dy="2" result="offsetblur"/>
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.3"/>
-      </feComponentTransfer>
-      <feMerge> 
-        <feMergeNode/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-  </defs>
-
-  <rect width="64" height="64" rx="16" fill="url(#mainGradient)" />
-
-  <!-- Isometric Box / Connection Symbol -->
-  <g transform="translate(16, 16) scale(0.5)" filter="url(#dropShadow)">
-    <!-- Base Node/Box -->
-    <path d="M32 16L58 28V52L32 64L6 52V28L32 16Z" fill="white" fill-opacity="0.95"/>
-    
-    <!-- Top Face Lines -->
-    <path d="M32 16L32 40M32 40L58 28M32 40L6 28" stroke="#8b5a8c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-    
-    <!-- Connection Dots -->
-    <circle cx="32" cy="16" r="4" fill="#6b9b93" />
-    <circle cx="58" cy="28" r="4" fill="#8b5a8c" />
-    <circle cx="6" cy="28" r="4" fill="#8b5a8c" />
-    <circle cx="32" cy="64" r="4" fill="#7b6fa5" />
-  </g>
+  <rect width="64" height="64" rx="14" fill="#8b5a8c" />
+  <path d="M20 32L32 22L44 32M20 32L32 42L44 32" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <circle cx="32" cy="32" r="2" fill="white" />
 </svg>
