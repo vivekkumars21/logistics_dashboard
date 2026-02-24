@@ -29,7 +29,7 @@ export default function DataTable<T>({ columns, data, keyField, pageSize = 5, to
   const pageData = data.slice(start, end);
 
   const handleDelete = async (row: T) => {
-    const id = row[keyField];
+    const id = row[keyField] as string | number;
     setDeletingId(id);
     if (onDelete) {
       onDelete(row);
