@@ -655,10 +655,6 @@ export default function DashboardPage() {
 
       {/* Page Header */}
       <div className={styles.pageHeader}>
-        <div>
-          <h1 className={styles.pageTitle}>Overview</h1>
-          <p className={styles.pageSubtitle}>Track your daily supply chain operations.</p>
-        </div>
       </div>
 
       {/* Stats Row */}
