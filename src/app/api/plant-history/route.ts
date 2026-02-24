@@ -13,11 +13,11 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // ── Get last 7 days of batches ─────────────────────
+    // ── Get last 24 days of batches ─────────────────────
     const supabase = getSupabase();
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    const cutoff = sevenDaysAgo.toISOString().split("T")[0];
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - 24);
+    const cutoff = cutoffDate.toISOString().split("T")[0];
 
     const { data: batches } = await supabase
       .from("upload_batches")
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
 
     // ── Get plant records across those batches ─────────
     const { data: records, error } = await supabase
-      .from("logistics_records")
+      .from("shipments")
       .select("*, batch:upload_batches(upload_date)")
       .eq("plant", plant)
       .in("batch_id", batchIds)
@@ -50,22 +50,20 @@ export async function GET(request: NextRequest) {
     const history = (records ?? []).map((r) => ({
       upload_date: (r.batch as { upload_date: string })?.upload_date ?? "",
       mode: r.mode,
-      weight: r.weight,
-      amount: r.amount,
-      invoice_no: r.invoice_no,
-      eod_data: r.eod_data,
       case_count: r.case_count,
-      volume: r.volume,
+      nc_cc: r.nc_cc,
       location: r.location,
       is_ready: r.is_ready,
+      pgi_no: r.pgi_no,
+      preferred_edd: r.preferred_edd,
+      dispatch_remark: r.dispatch_remark,
     }));
 
-    // ── 7-day summary ──────────────────────────────────
+    // ── 24-day summary ──────────────────────────────────
     const summary = {
-      totalWeight: history.reduce((s, r) => s + (r.weight ?? 0), 0),
-      totalAmount: history.reduce((s, r) => s + (r.amount ?? 0), 0),
-      totalVolume: history.reduce((s, r) => s + (r.volume ?? 0), 0),
+      totalCases: history.reduce((s, r) => s + (r.case_count ?? 0), 0),
       daysPresent: new Set(history.map((r) => r.upload_date)).size,
+      readyCount: history.filter((r) => r.is_ready).length,
     };
 
     return NextResponse.json({ plant, history, summary });

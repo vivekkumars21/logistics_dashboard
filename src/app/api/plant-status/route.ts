@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
 
     // Get all individual records for this batch
     const { data: records, error: recError } = await supabase
-      .from("logistics_records")
+      .from("shipments")
       .select("id, plant, location, is_ready")
       .eq("batch_id", batch.id)
       .order("plant", { ascending: true })

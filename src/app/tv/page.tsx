@@ -56,13 +56,13 @@ export default function TVViewPage() {
     const supabase = createClient(url, key);
 
     const channel = supabase
-      .channel("tv-logistics-realtime")
+      .channel("tv-PLANTFLOW7-realtime")
       .on(
         "postgres_changes",
         {
           event: "*",
           schema: "public",
-          table: "logistics_records",
+          table: "shipments",
         },
         () => {
           fetchPlantStatus();
@@ -126,6 +126,7 @@ export default function TVViewPage() {
               entry.isReady ? styles.cardDone : styles.cardOpen
             }`}
           >
+            {entry.isReady && <span className={styles.checkmark}>✓</span>}
             <span className={styles.plantId}>{entry.plant}</span>
             <span className={styles.location}>{entry.location}</span>
           </div>

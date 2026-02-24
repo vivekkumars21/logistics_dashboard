@@ -1,18 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { LogisticsRecord } from "@/types";
+import { PLANTFLOW7Record } from "@/types";
 import styles from "./RecordDetailModal.module.css";
 
 interface RecordDetailModalProps {
-  record: LogisticsRecord | null;
+  record: PLANTFLOW7Record | null;
   open: boolean;
   onClose: () => void;
-  onSave?: (recordId: number, updates: Partial<LogisticsRecord>) => void;
+  onSave?: (recordId: number, updates: Partial<PLANTFLOW7Record>) => void;
 }
-
-const formatCurrency = (v: number) =>
-  new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 2 }).format(v);
 
 const formatDate = (d: string) => {
   if (!d) return "—";
@@ -27,29 +24,23 @@ const formatDate = (d: string) => {
 
 // Fields that can be edited
 const EDITABLE_KEYS = [
-  "plant",
   "location",
   "pgi_no",
   "pgi_date",
-  "invoice_no",
-  "invoice_date",
+  "nc_cc",
   "mode",
   "case_count",
-  "weight",
-  "volume",
-  "amount",
-  "preferred_mode",
   "preferred_edd",
   "dispatch_remark",
-  "eod_data",
+  "remarks",
 ] as const;
 
 type EditableKey = (typeof EDITABLE_KEYS)[number];
 
 interface FieldDef {
-  key: EditableKey | "is_ready";
+  key: EditableKey | "is_ready" | "plant";
   label: string;
-  display: (r: LogisticsRecord) => string;
+  display: (r: PLANTFLOW7Record) => string;
   type?: "text" | "number";
 }
 
@@ -58,17 +49,12 @@ const FIELDS: FieldDef[] = [
   { key: "location", label: "Location", display: (r) => r.location },
   { key: "pgi_no", label: "PGI No.", display: (r) => r.pgi_no },
   { key: "pgi_date", label: "PGI Date", display: (r) => formatDate(r.pgi_date) },
-  { key: "invoice_no", label: "Invoice No.", display: (r) => r.invoice_no },
-  { key: "invoice_date", label: "Invoice Date", display: (r) => formatDate(r.invoice_date) },
+  { key: "nc_cc", label: "NC/CC", display: (r) => r.nc_cc || "—" },
   { key: "mode", label: "Mode", display: (r) => r.mode },
   { key: "case_count", label: "Cases", display: (r) => String(r.case_count ?? 0), type: "number" },
-  { key: "weight", label: "Weight", display: (r) => `${(r.weight ?? 0).toFixed(2)} kg` , type: "number" },
-  { key: "volume", label: "Volume", display: (r) => (r.volume ?? 0).toFixed(2), type: "number" },
-  { key: "amount", label: "Amount", display: (r) => formatCurrency(r.amount ?? 0), type: "number" },
-  { key: "preferred_mode", label: "Preferred Mode", display: (r) => r.preferred_mode || "\u2014" },
   { key: "preferred_edd", label: "Preferred EDD", display: (r) => formatDate(r.preferred_edd) },
-  { key: "dispatch_remark", label: "Dispatch Remark", display: (r) => r.dispatch_remark || "\u2014" },
-  { key: "eod_data", label: "EOD Data", display: (r) => r.eod_data || "\u2014" },
+  { key: "dispatch_remark", label: "Dispatch Remark", display: (r) => r.dispatch_remark || "—" },
+  { key: "remarks", label: "Remarks", display: (r) => r.remarks || "—" },
   { key: "is_ready", label: "Ready", display: (r) => (r.is_ready ? "Yes" : "No") },
 ];
 
@@ -108,7 +94,7 @@ export default function RecordDetailModal({ record, open, onClose, onSave }: Rec
     setSaving(true);
 
     // Build only changed fields
-    const updates: Partial<LogisticsRecord> = {};
+    const updates: Partial<PLANTFLOW7Record> = {};
     EDITABLE_KEYS.forEach((k) => {
       const orig = String((record as unknown as Record<string, unknown>)[k] ?? "");
       if (draft[k] !== orig) {

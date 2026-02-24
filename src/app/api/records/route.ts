@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
 
     // ── Get records for this batch ─────────────────────
     const { data: records, error: recError } = await supabase
-      .from("logistics_records")
+      .from("shipments")
       .select("*")
       .eq("batch_id", batch.id)
       .order("id", { ascending: true });
@@ -61,13 +61,14 @@ export async function GET(request: NextRequest) {
     const readyList = allRecords.filter((r) => r.is_ready);
 
     // ── Stats ──────────────────────────────────────────
+    const sumCases = (list: typeof allRecords) => list.reduce((s, r) => s + (r.case_count ?? 0), 0);
     const stats = {
-      total: allRecords.length,
-      inProcess: inProcessList.length,
-      ready: readyList.length,
-      totalAmount: allRecords.reduce((s, r) => s + (r.amount ?? 0), 0),
-      totalWeight: allRecords.reduce((s, r) => s + (r.weight ?? 0), 0),
-      totalVolume: allRecords.reduce((s, r) => s + (r.volume ?? 0), 0),
+      total: sumCases(allRecords),
+      inProcess: sumCases(inProcessList),
+      ready: sumCases(readyList),
+      totalRows: allRecords.length,
+      inProcessRows: inProcessList.length,
+      readyRows: readyList.length,
     };
 
     return NextResponse.json({
@@ -90,8 +91,8 @@ function emptyStats() {
     total: 0,
     inProcess: 0,
     ready: 0,
-    totalAmount: 0,
-    totalWeight: 0,
-    totalVolume: 0,
+    totalRows: 0,
+    inProcessRows: 0,
+    readyRows: 0,
   };
 }

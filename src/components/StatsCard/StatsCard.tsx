@@ -3,12 +3,13 @@ import styles from "./StatsCard.module.css";
 interface StatsCardProps {
   title: string;
   value: string | number;
+  subtitle?: string;
   icon: React.ReactNode;
   trend?: { value: string; positive: boolean };
   variant?: "default" | "blue" | "green";
 }
 
-export default function StatsCard({ title, value, icon, trend, variant = "default" }: StatsCardProps) {
+export default function StatsCard({ title, value, subtitle, icon, trend, variant = "default" }: StatsCardProps) {
   return (
     <div className={`${styles.card} ${variant !== "default" ? styles[variant] : ""}`}>
       <div className={styles.header}>
@@ -16,6 +17,7 @@ export default function StatsCard({ title, value, icon, trend, variant = "defaul
         <span className={styles.icon}>{icon}</span>
       </div>
       <div className={styles.value}>{typeof value === "number" ? value.toLocaleString() : value}</div>
+      {subtitle && <div className={styles.subtitle}>{subtitle}</div>}
       {trend && (
         <div className={`${styles.trend} ${trend.positive ? styles.positive : styles.negative}`}>
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ marginRight: 4 }}>

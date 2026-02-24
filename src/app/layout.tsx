@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { AuthProvider } from "@/lib/auth-context";
 import { RootLayoutClient } from "./root-layout-client";
 import "./globals.css";
 
@@ -15,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Logistics — Shipment Dashboard",
-  description: "Logistics management dashboard",
+  title: "PLANTFLOW7 — Shipment Dashboard",
+  description: "PLANTFLOW7 management dashboard",
 };
 
 export default function RootLayout({
@@ -27,9 +26,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <AuthProvider>
-          <RootLayoutClient>{children}</RootLayoutClient>
-        </AuthProvider>
+        <RootLayoutClient>{children}</RootLayoutClient>
       </body>
     </html>
   );

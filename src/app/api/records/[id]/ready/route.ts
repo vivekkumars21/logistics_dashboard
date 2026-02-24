@@ -12,12 +12,12 @@ export async function PATCH(
 
     // Build update payload — supports all editable fields
     const allowedStrings = [
-      "plant", "location", "pgi_no", "pgi_date",
-      "invoice_no", "invoice_date", "mode",
-      "preferred_mode", "preferred_edd", "dispatch_remark",
-      "eod_data", "remark",
+      "location", "pgi_no", "pgi_date",
+      "nc_cc", "mode",
+      "preferred_edd", "dispatch_remark",
+      "remarks",
     ];
-    const allowedNumbers = ["case_count", "weight", "volume", "amount"];
+    const allowedNumbers = ["case_count"];
 
     const updatePayload: Record<string, unknown> = {};
     if ("is_ready" in body) updatePayload.is_ready = Boolean(body.is_ready);
@@ -36,7 +36,7 @@ export async function PATCH(
     }
 
     const { data, error } = await supabase
-      .from("logistics_records")
+      .from("shipments")
       .update(updatePayload)
       .eq("id", Number(id))
       .select()
@@ -68,7 +68,7 @@ export async function DELETE(
     const supabase = getSupabase();
 
     const { error } = await supabase
-      .from("logistics_records")
+      .from("shipments")
       .delete()
       .eq("id", Number(id));
 

@@ -12,37 +12,25 @@ const HEADER_ALIASES: Record<string, string> = {
   "pgi date":         "pgi_date",
   "pgi dt":           "pgi_date",
   "pgi dt.":          "pgi_date",
-  "invoice no.":      "invoice_no",
-  "invoice no":       "invoice_no",
-  "inv no.":          "invoice_no",
-  "inv no":           "invoice_no",
-  "invoice date":     "invoice_date",
-  "inv dt.":          "invoice_date",
-  "inv dt":           "invoice_date",
-  "inv date":         "invoice_date",
+  "nc/cc":            "nc_cc",
+  "nc cc":            "nc_cc",
   "mode":             "mode",
-  "no. of case":      "case_count",
-  "no of case":       "case_count",
   "case":             "case_count",
   "cases":            "case_count",
-  "weight":           "weight",
-  "volume":           "volume",
-  "amount":           "amount",
-  "preferred mode":   "preferred_mode",
-  "pref mode":        "preferred_mode",
+  "no. of case":      "case_count",
+  "no of case":       "case_count",
   "preferred edd":    "preferred_edd",
   "pref edd":         "preferred_edd",
   "dispatch remark":  "dispatch_remark",
   "dispatch":         "dispatch_remark",
-  "eod data":         "eod_data",
-  "eod":              "eod_data",
+  "remarks":          "remarks",
+  "remark":           "remarks",
 };
 
 // Keys that must be present after mapping
 const REQUIRED_KEYS = [
   "plant", "location", "pgi_no", "pgi_date",
-  "invoice_no", "mode", "case_count",
-  "weight", "volume", "amount",
+  "mode", "case_count", "nc_cc", "preferred_edd",
 ];
 
 // ── Helpers ────────────────────────────────────────────
@@ -70,14 +58,6 @@ function parseExcelDate(val: unknown): string {
   }
 
   return s;
-}
-
-function parseAmount(val: unknown): number {
-  if (val == null) return 0;
-  if (typeof val === "number") return val;
-  const cleaned = String(val).replace(/,/g, "").trim();
-  const n = parseFloat(cleaned);
-  return isNaN(n) ? 0 : n;
 }
 
 export async function POST(request: NextRequest) {
@@ -182,17 +162,12 @@ export async function POST(request: NextRequest) {
         location: String(row["location"] ?? "").trim(),
         pgi_no: String(row["pgi_no"] ?? "").trim(),
         pgi_date: parseExcelDate(row["pgi_date"]),
-        invoice_no: String(row["invoice_no"] ?? "").trim(),
-        invoice_date: parseExcelDate(row["invoice_date"]),
+        nc_cc: String(row["nc_cc"] ?? "").toUpperCase().trim(),
         mode: String(row["mode"] ?? "").trim(),
         case_count: Number(row["case_count"] ?? 0),
-        weight: parseAmount(row["weight"]),
-        volume: parseAmount(row["volume"]),
-        amount: parseAmount(row["amount"]),
-        preferred_mode: String(row["preferred_mode"] ?? "").trim(),
         preferred_edd: parseExcelDate(row["preferred_edd"]),
         dispatch_remark: String(row["dispatch_remark"] ?? "").trim(),
-        eod_data: String(row["eod_data"] ?? "").trim(),
+        remarks: String(row["remarks"] ?? "").trim(),
         is_ready: false,
       }));
 
@@ -204,7 +179,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { error: insertError } = await supabase
-      .from("logistics_records")
+      .from("shipments")
       .insert(records);
 
     if (insertError) {
@@ -214,10 +189,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // ── Cleanup: delete batches older than 7 days ──────
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    const cutoff = sevenDaysAgo.toISOString().split("T")[0];
+    // ── Cleanup: delete batches older than 24 days ──────
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - 24);
+    const cutoff = cutoffDate.toISOString().split("T")[0];
 
     await supabase
       .from("upload_batches")
