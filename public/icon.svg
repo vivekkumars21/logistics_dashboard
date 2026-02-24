@@ -1,0 +1,70 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Main background gradient -->
+    <linearGradient id="iconBg" x1="0" y1="0" x2="256" y2="256" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#8b5a8c" />
+      <stop offset="50%" stop-color="#7b6fa5" />
+      <stop offset="100%" stop-color="#6b9b93" />
+    </linearGradient>
+
+    <!-- Glassmorphic face gradient -->
+    <linearGradient id="glassFace" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.4" />
+    </linearGradient>
+
+    <!-- Drop Shadow Filter -->
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000000" flood-opacity="0.25" />
+    </filter>
+
+    <!-- Inner Glow/Highlight -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background container -->
+  <rect width="256" height="256" rx="64" fill="url(#iconBg)" />
+
+  <!-- Main Isometric Content Group -->
+  <g transform="translate(128, 128)">
+    
+    <!-- Central Network Hub/Box (Isometric) -->
+    <g filter="url(#shadow)">
+      <!-- Left Face -->
+      <path d="M0 20 L-50 -10 V-70 L0 -40 Z" fill="#ffffff" fill-opacity="0.2" stroke="white" stroke-width="1.5"/>
+      <!-- Right Face -->
+      <path d="M0 20 L50 -10 V-70 L0 -40 Z" fill="#ffffff" fill-opacity="0.3" stroke="white" stroke-width="1.5"/>
+      <!-- Top Face -->
+      <path d="M0 -40 L50 -70 L0 -100 L-50 -70 Z" fill="url(#glassFace)" stroke="white" stroke-width="2"/>
+    </g>
+
+    <!-- Connection Nodes (Floating) -->
+    <!-- Top Node -->
+    <circle cx="0" cy="-100" r="8" fill="#FCD34D" filter="url(#glow)">
+       <animate attributeName="r" values="8;10;8" dur="3s" repeatCount="indefinite" />
+    </circle>
+    
+    <!-- Left Bottom Node -->
+    <circle cx="-50" cy="-10" r="6" fill="#8b5a8c" stroke="white" stroke-width="2" />
+    <!-- Right Bottom Node -->
+    <circle cx="50" cy="-10" r="6" fill="#6b9b93" stroke="white" stroke-width="2" />
+
+    <!-- Connecting Lines (Data Flow) -->
+    <path d="M-50 -10 Q-60 40 0 60 Q60 40 50 -10" stroke="white" stroke-width="3" stroke-dasharray="8 8" stroke-opacity="0.6" fill="none"/>
+    
+    <!-- Checkmark / Status Icon on front -->
+    <path d="M-15 -10 L0 5 L15 -15" stroke="#FCD34D" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" transform="translate(0, -20)" opacity="0.9"/>
+
+    <!-- Bottom Reflection/Pedestal effect -->
+    <ellipse cx="0" cy="80" rx="60" ry="12" fill="black" fill-opacity="0.1" filter="url(#shadow)" />
+    
+    <!-- Text Label -->
+    <text x="0" y="90" text-anchor="middle" fill="white" font-family="sans-serif" font-weight="bold" font-size="24" letter-spacing="2" opacity="0.9">SUPPLY</text>
+  </g>
+</svg>
