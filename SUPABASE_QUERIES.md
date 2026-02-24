@@ -253,7 +253,7 @@ return () => {
 ### TV View Realtime (tv/page.tsx)
 ```typescript
 const channel = supabase
-  .channel("tv-PLANTFLOW7-realtime")
+  .channel("zdc-hub-realtime")
   .on(
     "postgres_changes",
     {

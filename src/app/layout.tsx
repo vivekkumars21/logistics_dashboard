@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PLANTFLOW7 — Shipment Dashboard",
-  description: "PLANTFLOW7 management dashboard",
+  title: "ZDC Hub Operations — Shipment Dashboard",
+  description: "ZDC Hub Operations management dashboard",
 };
 
 export default function RootLayout({

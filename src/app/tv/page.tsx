@@ -56,7 +56,7 @@ export default function TVViewPage() {
     const supabase = createClient(url, key);
 
     const channel = supabase
-      .channel("tv-PLANTFLOW7-realtime")
+      .channel("zdc-hub-realtime")
       .on(
         "postgres_changes",
         {

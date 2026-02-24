@@ -20,7 +20,9 @@ export default function Navbar() {
         <div className={styles.logoSection}>
           <svg className={styles.logoIcon} width="28" height="28" viewBox="0 0 28 28" fill="none">
             <rect width="28" height="28" rx="8" fill="#9b2fa0" fillOpacity="0.12" />
-            <path d="M8 14l4 4 8-8" stroke="#9b2fa0" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M6 10h16v10H6z" stroke="#9b2fa0" strokeWidth="1.5" strokeLinejoin="round" />
+            <path d="M9 10v-2a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2" stroke="#9b2fa0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M11 15h6" stroke="#9b2fa0" strokeWidth="1.5" strokeLinecap="round" />
           </svg>
           <span className={styles.logoText}>ZDC Hub Operation</span>
         </div>

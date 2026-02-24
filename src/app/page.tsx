@@ -262,8 +262,8 @@ export default function DashboardPage() {
     
     // Create a unique channel name based on the selected batch
     const channelName = selectedBatchId 
-      ? `logistics-records-batch-${selectedBatchId}` 
-      : 'logistics-records-all';
+      ? `zdc-hub-batch-${selectedBatchId}` 
+      : 'zdc-hub-all';
     
     const channel = supabase
       .channel(channelName)

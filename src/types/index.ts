@@ -1,4 +1,4 @@
-// ── Rolling 24-Day Plant PLANTFLOW7 Types ─────────────────
+// ── Rolling 24-Day Plant ZDC Hub Operations Types ─────────────────
 
 export interface UploadBatch {
   id: number;
